@@ -7,6 +7,7 @@
 unsigned int fppwlog2(unsigned int x) {
     /*
      *  All constants are / 2^8
+     *  0xXX.XX
      *  x is also assumed to be 2^8
      */ 
 
@@ -14,27 +15,43 @@ unsigned int fppwlog2(unsigned int x) {
         return 0xFFFFF; // Error.
     }
     if( x < 0x0200) {
+        // Min return:  0x0
+        // Max return:  0xFF
         return( x - 0x100); 
     }
     if( x < 0x0400) {
-        return( 0x0100 + ((x - 0x0200) * 0x0080) >> 8);    // / 2.0 == * 0.5 * 2^8 = 0x80
+        // Min return:  0x100
+        // Max return:  0x1FF
+        return( 0x0100 + ((x - 0x0200) * 0x0080) >> 8);
     }
     if( x < 0x0800) {
-        return( 0x0200 + ((x - 0x0400) * 0x0040) >> 8);     // / 4.0 == * .25
+        // Min return:  0x200
+        // Max return:  0x2FF
+        return( 0x0200 + ((x - 0x0400) * 0x0040) >> 8);
     }
     if( x < 0x1000) {
+        // Min return:  0x300
+        // Max return:  0x3FF
         return( 0x0300 + ((x - 0x0800) * 0x0020) >> 8);
     }
     if( x < 0x2000) {
+        // Min return:  0x400
+        // Max return:  0x4FF
         return( 0x0400 + ((x - 0x1000) * 0x0010) >> 8);
     }
     if( x < 0x4000) {
+        // Min return:  0x500
+        // Max return:  0x5FF
         return( 0x0500 + ((x - 0x2000) * 0x0008) >> 8);
     }
     if( x < 0x8000) {
+        // Min return:  0x600
+        // Max return:  0x6FF
         return( 0x0600 + ((x - 0x4000) * 0x0004) >> 8);
     }
     if( x < 0x10000) {
+        // Min return:  0x700
+        // Max return:  0x7FF
         return( 0x0700 + ((x - 0x8000) * 0x0002) >> 8);
     }
     return 0xFFFFF; // Error.
@@ -72,10 +89,21 @@ unsigned int encode(unsigned int x) {
     unsigned int result = x;
     //        255*2^15      ^15  >> ^8      
     result = (0x7F8000 * result) >> 22;
-    result = 0x100 + result;
-    result = (0x2000) * fppwlog2(result);
+    result = 0x0100 + result;
+    result = fppwlog2(result) >> 4;
+    result = (result * (0x02) >> 4);
+    return result;
+}
 
-    // Scale result to 8 bits.
+/*
+ * Fixied point Mu-Law decoder
+ * takes in 8-bit
+ * puts out 16-bit
+ */
+unsigned int decode(unsigned int x){
+    unsigned int result = x;
+    result = (result << 4)
+    result = 
 }
 
 int main(void) {
