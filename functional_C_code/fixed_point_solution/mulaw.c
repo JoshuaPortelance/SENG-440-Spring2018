@@ -22,37 +22,37 @@ unsigned int fppwlog2(unsigned int x) {
     if( x < 0x0400) {
         // Min return:  0x100
         // Max return:  0x1FF
-        return( 0x0100 + ((x - 0x0200) * 0x0080) >> 8);
+        return( 0x0100 + (((x - 0x0200) * 0x0080) >> 8));
     }
     if( x < 0x0800) {
         // Min return:  0x200
         // Max return:  0x2FF
-        return( 0x0200 + ((x - 0x0400) * 0x0040) >> 8);
+        return( 0x0200 + (((x - 0x0400) * 0x0040) >> 8));
     }
     if( x < 0x1000) {
         // Min return:  0x300
         // Max return:  0x3FF
-        return( 0x0300 + ((x - 0x0800) * 0x0020) >> 8);
+        return( 0x0300 + (((x - 0x0800) * 0x0020) >> 8));
     }
     if( x < 0x2000) {
         // Min return:  0x400
         // Max return:  0x4FF
-        return( 0x0400 + ((x - 0x1000) * 0x0010) >> 8);
+        return( 0x0400 + (((x - 0x1000) * 0x0010) >> 8));
     }
     if( x < 0x4000) {
         // Min return:  0x500
         // Max return:  0x5FF
-        return( 0x0500 + ((x - 0x2000) * 0x0008) >> 8);
+        return( 0x0500 + (((x - 0x2000) * 0x0008) >> 8));
     }
     if( x < 0x8000) {
         // Min return:  0x600
         // Max return:  0x6FF
-        return( 0x0600 + ((x - 0x4000) * 0x0004) >> 8);
+        return( 0x0600 + (((x - 0x4000) * 0x0004) >> 8));
     }
     if( x < 0x10000) {
         // Min return:  0x700
         // Max return:  0x7FF
-        return( 0x0700 + ((x - 0x8000) * 0x0002) >> 8);
+        return( 0x0700 + (((x - 0x8000) * 0x0002) >> 8));
     }
     return 0xFFFFF; // Error.
 }
@@ -95,9 +95,7 @@ unsigned int encode(unsigned int x) {
     result = 0x0100 + result;
     printf("Encode 3: %x \n", result);
     //       <<8              >> 4 = <<4
-    result = fppwlog2(result);
-	printf("Encode 3.5: %x \n", result);
-    result = result >> 4;
+    result = fppwlog2(result) >> 4;
 	printf("Encode 4: %x \n", result);
     //         <<4   *  (1/8)<<4 >>4 = <<4
     result = ((result * (0x02)) >> 4);
@@ -159,7 +157,7 @@ unsigned int decode(unsigned int x){
     result = result << 4;
     printf("Decode 2: %x \n", result);
     result = fppw2exp(result);
-    printf("Decode 3:%x \n", result);
+    printf("Decode 3: %x \n", result);
     result = fpexp8(result);
     printf("Decode 4: %x \n", result);
     result = result - 0x0100;
@@ -185,11 +183,12 @@ int main(void) {
 
     sample = 0x0FCD; //0.1234567 * 2^15; same as <<15, 1<<15 = 0x8000
     encoded_sample = encode(sample);
+    printf("------------\n");
     decoded_sample = decode(encoded_sample);
-    
+    printf("------------\n");
     printf("Sample: %x \n", sample);
     printf("Encoded Sample: %x \n", encoded_sample);
-    printf("Decoded Sample: %f \n", decoded_sample);
+    printf("Decoded Sample: %x \n", decoded_sample);
     
     return 0;
 }
