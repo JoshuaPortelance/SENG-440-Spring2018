@@ -87,11 +87,55 @@ unsigned int encode(unsigned int x) {
 
     
     unsigned int result = x;
-    //        255*2^15      ^15  >> ^8      
-    result = (0x7F8000 * result) >> 22;
+    //       0d255   d<<15   >> 7 = <<8
+    result = (0xFF * result) >> 7;
+    //       1      + d<<8
     result = 0x0100 + result;
+    //       <<8              >> 4 = <<4
     result = fppwlog2(result) >> 4;
-    result = (result * (0x02) >> 4);
+    //         <<4   *  (1/8)<<4 >>4 = <<4
+    result = ((result * (0x02)) >> 4);
+    // 8 bit output, xxxx . xxxx
+    return result;
+}
+
+unsigned int fppw2exp(unsigned int x) {
+    if (x < 0x0040) {
+        return(((0x0061 * x) >> 8) + 0x00E1);
+    }
+    if (x < 0x0080) {
+        return(((0x0073 * x) >> 8) + 0x00EF);
+    }
+    if (x < 0x00C0) {
+        return(((0x0089 * x) >> 8) + 0x00FA);
+    }
+    if (x < 0x0100) {
+        return(((0x00A3 * x) >> 8) + 0x0100);
+    }
+    if (x < 0x0140) {
+        return(((0x00C2 * x) >> 8) + 0x0100);
+    }
+    if (x < 0x0180) {
+        return(((0x00E6 * x) >> 8) + 0x00F7);
+    }
+    if (x < 0x01C0) {
+        return(((0x0112 * x) >> 8) + 0x00E1);
+    }
+    if (x < 0x0200) {
+        return(((0x0164 * x) >> 8) + 0x00BA);
+    }
+    return 0xFFFF;
+}
+
+unsigned int fpexp8(unsigned int x) {
+    unsigned int result = x;
+    
+    // multiplies x by itself 8 times while handling shifts.
+    for (int i=0; i<8; i++) {
+        result = result * result;
+        result = result >> 8;
+    }
+    
     return result;
 }
 
@@ -99,11 +143,27 @@ unsigned int encode(unsigned int x) {
  * Fixied point Mu-Law decoder
  * takes in 8-bit
  * puts out 16-bit
+ *
+ * (1/255)((1+255)^x - 1)
  */
 unsigned int decode(unsigned int x){
     unsigned int result = x;
-    result = (result << 4)
+    result = result << 4;
+    result = fppw2exp(result);
+    result = fpexp8(result);
+    result = result - 0x0100;
+    //result = result * /*(1/255)*/
+    //result = result >> /*8?*/;
+    return result;
+    /*
     result = 
+    
+    
+    result = (result << 4) * (0x80)
+    result = fppwexp2(result) << 4
+    result = result - 0x100
+    result = ((result * 0x80) - )
+    */
 }
 
 int main(void) {
@@ -113,11 +173,11 @@ int main(void) {
 
     sample = 0x0FCD; //0.1234567 * 2^15; same as <<15, 1<<15 = 0x8000
     encoded_sample = encode(sample);
-    //decoded_sample = decode(encoded_sample);
+    decoded_sample = decode(encoded_sample);
     
     printf("Sample: %x \n", sample);
     printf("Encoded Sample: %x \n", encoded_sample);
-    //printf("Decoded Sample: %f \n", decoded_sample);
+    printf("Decoded Sample: %f \n", decoded_sample);
     
     return 0;
 }
