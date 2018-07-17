@@ -156,7 +156,7 @@ unsigned int decode(unsigned int x){
     printf("Decode 1: %x \n", result);
     result = result << 4;
     printf("Decode 2: %x \n", result);
-    result = fppw2exp(result);
+    result = fppw2exp(result); // current problem
     printf("Decode 3: %x \n", result);
     result = fpexp8(result);
     printf("Decode 4: %x \n", result);
@@ -176,19 +176,33 @@ unsigned int decode(unsigned int x){
     */
 }
 
-int main(void) {
-    unsigned int sample;
+int test(unsigned int sample) {
     unsigned int encoded_sample;
     unsigned int decoded_sample;
-
-    sample = 0x0FCD; //0.1234567 * 2^15; same as <<15, 1<<15 = 0x8000
+    
+    printf("==== SAMPLE: %x \n", sample);
     encoded_sample = encode(sample);
     printf("------------\n");
     decoded_sample = decode(encoded_sample);
     printf("------------\n");
-    printf("Sample: %x \n", sample);
     printf("Encoded Sample: %x \n", encoded_sample);
     printf("Decoded Sample: %x \n", decoded_sample);
+    printf("Match??   %x == %x\n", sample, decoded_sample);
+    // printf("decimal:  %d == %d\n", sample/(2^15), decoded_sample/(2^15));
+    printf("==~~~~~~~~~~~~~~~~~~~==\n\n");
+}
+
+int main(void) {
+    unsigned int sample;
+    unsigned int encoded_sample;
+    unsigned int decoded_sample;
+    
+    // 0.1234567 * 2^15; same as <<15, 1<<15 = 0x8000
+    sample = 0x0FCD;
+    test(sample);
+    
+    sample = 0x0100;
+    test(sample);
     
     return 0;
 }
