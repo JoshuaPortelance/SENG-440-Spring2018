@@ -87,14 +87,19 @@ unsigned int encode(unsigned int x) {
 
     
     unsigned int result = x;
+    printf("Encode 1: %x \n", result);
     //       0d255   d<<15   >> 7 = <<8
     result = (0xFF * result) >> 7;
+    printf("Encode 2: %x \n", result);
     //       1      + d<<8
     result = 0x0100 + result;
+    printf("Encode 3: %x \n", result);
     //       <<8              >> 4 = <<4
     result = fppwlog2(result) >> 4;
+    printf("Encode 4: %x \n", result);
     //         <<4   *  (1/8)<<4 >>4 = <<4
     result = ((result * (0x02)) >> 4);
+    printf("Encode 5: %x \n", result);
     // 8 bit output, xxxx . xxxx
     return result;
 }
@@ -129,9 +134,9 @@ unsigned int fppw2exp(unsigned int x) {
 
 unsigned int fpexp8(unsigned int x) {
     unsigned int result = x;
-    
+	int i = 0; 
     // multiplies x by itself 8 times while handling shifts.
-    for (int i=0; i<8; i++) {
+    for (i=0; i<8; i++) {
         result = result * result;
         result = result >> 8;
     }
@@ -148,10 +153,15 @@ unsigned int fpexp8(unsigned int x) {
  */
 unsigned int decode(unsigned int x){
     unsigned int result = x;
+    printf("Decode 1: %x \n", result);
     result = result << 4;
+    printf("Decode 2: %x \n", result);
     result = fppw2exp(result);
+    printf("Decode 3:%x \n", result);
     result = fpexp8(result);
+    printf("Decode 4: %x \n", result);
     result = result - 0x0100;
+    printf("Decode 5: %x \n", result);
     //result = result * /*(1/255)*/
     //result = result >> /*8?*/;
     return result;
