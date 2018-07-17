@@ -10,32 +10,32 @@ unsigned int fppwlog2(unsigned int x) {
      *  x is also assumed to be 2^8
      */ 
 
-    if( x < 0x100) {
+    if( x < 0x0100) {
         return 0xFFFFF; // Error.
     }
-    if( x < 0x200) {
-        return( x - 0x100);
+    if( x < 0x0200) {
+        return( x - 0x100); 
     }
-    if( x < 0x400) {
-        return( 0x100 + (x - 0x200) * 0x80);    // / 2.0 == * 0.5 * 2^8 = 0x80
+    if( x < 0x0400) {
+        return( 0x0100 + ((x - 0x0200) * 0x0080) >> 8);    // / 2.0 == * 0.5 * 2^8 = 0x80
     }
-    if( x < 0x800) {
-        return( 0x200 + (x - 0x400) * 0x40);     // / 4.0 == * .25
+    if( x < 0x0800) {
+        return( 0x0200 + ((x - 0x0400) * 0x0040) >> 8);     // / 4.0 == * .25
     }
     if( x < 0x1000) {
-        return( 0x300 + (x - 0x800) * 0x20);
+        return( 0x0300 + ((x - 0x0800) * 0x0020) >> 8);
     }
     if( x < 0x2000) {
-        return( 0x400 + (x - 0x1000) * 0x10);
+        return( 0x0400 + ((x - 0x1000) * 0x0010) >> 8);
     }
     if( x < 0x4000) {
-        return( 0x500 + (x - 0x2000) * 0x8);
+        return( 0x0500 + ((x - 0x2000) * 0x0008) >> 8);
     }
     if( x < 0x8000) {
-        return( 0x600 + (x - 0x4000) * 0x4);
+        return( 0x0600 + ((x - 0x4000) * 0x0004) >> 8);
     }
     if( x < 0x10000) {
-        return( 0x700 + (x - 0x8000) * 0x2);
+        return( 0x0700 + ((x - 0x8000) * 0x0002) >> 8);
     }
     return 0xFFFFF; // Error.
 }
@@ -69,13 +69,13 @@ unsigned int encode(unsigned int x) {
     //      need to truncate 1 bit which is the right shift by 1
 
     
-    unsigned int result = x
+    unsigned int result = x;
     //        255*2^15      ^15  >> ^8      
     result = (0x7F8000 * result) >> 22;
     result = 0x100 + result;
     result = (0x2000) * fppwlog2(result);
-    
-    // Scale 16 bits to 8 bits.
+
+    // Scale result to 8 bits.
 }
 
 int main(void) {
@@ -85,11 +85,11 @@ int main(void) {
 
     sample = 0x0FCD; //0.1234567 * 2^15; same as <<15, 1<<15 = 0x8000
     encoded_sample = encode(sample);
-    decoded_sample = decode(encoded_sample);
+    //decoded_sample = decode(encoded_sample);
     
-    printf("Sample: %f \n", sample);
-    printf("Encoded Sample: %f \n", encoded_sample);
-    printf("Decoded Sample: %f \n", decoded_sample);
+    printf("Sample: %x \n", sample);
+    printf("Encoded Sample: %x \n", encoded_sample);
+    //printf("Decoded Sample: %f \n", decoded_sample);
     
     return 0;
 }
