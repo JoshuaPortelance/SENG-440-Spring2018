@@ -95,8 +95,10 @@ unsigned int encode(unsigned int x) {
     result = 0x0100 + result;
     printf("Encode 3: %x \n", result);
     //       <<8              >> 4 = <<4
-    result = fppwlog2(result) >> 4;
-    printf("Encode 4: %x \n", result);
+    result = fppwlog2(result);
+	printf("Encode 3.5: %x \n", result);
+    result = result >> 4;
+	printf("Encode 4: %x \n", result);
     //         <<4   *  (1/8)<<4 >>4 = <<4
     result = ((result * (0x02)) >> 4);
     printf("Encode 5: %x \n", result);
