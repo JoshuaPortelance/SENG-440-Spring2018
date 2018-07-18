@@ -54,6 +54,7 @@ unsigned int fppwlog2(unsigned int x) {
         // Max return:  0x7FF
         return( 0x0700 + (((x - 0x8000) * 0x0002) >> 8));
     }
+    printf("ERROR\n");
     return 0xFFFFF; // Error.
 }
 
@@ -105,39 +106,49 @@ unsigned int encode(unsigned int x) {
 }
 
 unsigned int fppw2exp(unsigned int x) {
+    // x < 0d0.25
     if (x < 0x0040) {
-        return(((0x0061 * x) >> 8) + 0x00E1);
-    }
-    if (x < 0x0080) {
-        return(((0x0073 * x) >> 8) + 0x00EF);
-    }
-    if (x < 0x00C0) {
-        return(((0x0089 * x) >> 8) + 0x00FA);
-    }
-    if (x < 0x0100) {
-        return(((0x00A3 * x) >> 8) + 0x0100);
-    }
-    if (x < 0x0140) {
         return(((0x00C2 * x) >> 8) + 0x0100);
     }
-    if (x < 0x0180) {
+    // x < 0d0.50
+    if (x < 0x0080) {
         return(((0x00E6 * x) >> 8) + 0x00F7);
     }
-    if (x < 0x01C0) {
+    // x < 0d0.75
+    if (x < 0x00C0) {
         return(((0x0112 * x) >> 8) + 0x00E1);
     }
-    if (x < 0x0200) {
-        return(((0x0164 * x) >> 8) + 0x00BA);
+    // x < 0d1.00
+    if (x < 0x0100) {
+        return(((0x0146 * x) >> 8) + 0x00BA);
     }
+    // x < 0d1.25
+    if (x < 0x0140) {
+        return(((0x0183 * x) >> 8) + 0x007D);
+    }
+    // x < 0d1.50
+    if (x < 0x0180) {
+        return(((0x01CD * x) >> 8) + 0x0021);
+    }
+    // x < 0d1.75
+    if (x < 0x01C0) {
+        return(((0x0225 * x) >> 8) - 0x0063);
+    }
+    // x < 0d2.00
+    if (x < 0x0200) {
+        return(((0x028B * x) >> 8) - 0x0117);
+    }
+    printf("ERROR\n");
     return 0xFFFF;
 }
 
+// Does x^8
+// The problem is there is a lot of error here...
 unsigned int fpexp8(unsigned int x) {
     unsigned int result = x;
 	int i = 0; 
-    // multiplies x by itself 8 times while handling shifts.
-    for (i=0; i<8; i++) {
-        result = result * result;
+    for (i=0; i<6; i++) {
+        result = result * x;
         result = result >> 8;
     }
     
@@ -150,16 +161,18 @@ unsigned int fpexp8(unsigned int x) {
  * puts out 16-bit
  *
  * (1/255)((1+255)^x - 1)
+ * (1/255)((256)^x - 1)
+ * (1/255)((2^x)^8 - 1)
  */
 unsigned int decode(unsigned int x){
     unsigned int result = x;
     printf("Decode 1: %x \n", result);
     result = result << 4;
     printf("Decode 2: %x \n", result);
-    result = fppw2exp(result); // current problem
+    result = fppw2exp(result);
     printf("Decode 3: %x \n", result);
-    result = fpexp8(result);
-    printf("Decode 4: %x \n", result);
+    result = fpexp8(result);    // current problem
+    printf("Decode 4: %x :: Expected: 144B \n", result);  // Ideally we would get something close to 0x144B here.
     result = result - 0x0100;
     printf("Decode 5: %x \n", result);
     //result = result * /*(1/255)*/
@@ -188,7 +201,7 @@ int test(unsigned int sample) {
     printf("Encoded Sample: %x \n", encoded_sample);
     printf("Decoded Sample: %x \n", decoded_sample);
     printf("Match??   %x == %x\n", sample, decoded_sample);
-    // printf("decimal:  %d == %d\n", sample/(2^15), decoded_sample/(2^15));
+    printf("decimal:  %f == %f\n", sample/32768.0, decoded_sample/32768.0);
     printf("==~~~~~~~~~~~~~~~~~~~==\n\n");
 }
 
@@ -201,7 +214,18 @@ int main(void) {
     sample = 0x0FCD;
     test(sample);
     
+    // 0.0078125 * 2^15; 
     sample = 0x0100;
+    test(sample);
+    
+    // min
+    // 0.0 * 2^15; 
+    sample = 0x0000;
+    test(sample);
+    
+    // max
+    // 1.0 * 2^15; 
+    sample = 0x7FFF;
     test(sample);
     
     return 0;
