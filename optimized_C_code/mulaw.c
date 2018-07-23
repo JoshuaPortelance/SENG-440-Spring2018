@@ -5,7 +5,7 @@
  * Fixed point piecewise log2.
  * Using linear approximations.
  */
-unsigned int fppwlog2(unsigned int x) {
+unsigned int fppwlog2(register unsigned int x) {
     /*
      *  All constants are  d<<12
      *  Therefore the "decimal" is located here: 0xY.YYY
@@ -63,37 +63,44 @@ unsigned int fppwlog2(unsigned int x) {
  *      Y.YYY YYYY
  */
 unsigned int encode(unsigned int x) {
-    unsigned int result = x;
-    printf("Encode 1: %x \n", result);
+    register unsigned int result = x; // make me into a register plez
+    // return (((fppwlog2(((result * 0xFF) >> 3) + 0x1000) * 0x200) >> 12) >> 5);
+    return ((fppwlog2(((result * 0xFF) >> 3) + 0x1000) * 0x200) >> 17);
+    
+    
+    
+    // unsigned int result = x;
+    // printf("Encode 1: %x \n", result);
     
     //       0d255   <<15   >> 3 = <<12
-    result = (0xFF * result) >> 3;
-    printf("Encode 2: %x \n", result);
+//     unsigned int result = (0xFF * x) >> 3;
+//     printf("Encode 2: %x \n", result);
     
-    //       1<<12  + d<<12
-    result = 0x1000 + result;
-    printf("Encode 3: %x \n", result);
+//     //       1<<12  + d<<12
+//     result = 0x1000 + result;
+//     printf("Encode 3: %x \n", result);
     
-    //       <<12  =  <<12
-    result = fppwlog2(result);
-	printf("Encode 4: %x \n", result);
+//     //       <<12  =  <<12
+//     result = fppwlog2(result);
+// 	printf("Encode 4: %x \n", result);
 	
-    //         <<12   * (1/8)<<12  >>12 = <<12
-    result = ((result * (0x200)) >> 12);
-    printf("Encode 5: %x \n", result);
+//     //         <<12   * (1/8)<<12  >>12 = <<12
+//     result = ((result * (0x200)) >> 12);
+//     printf("Encode 5: %x \n", result);
     
-    //        <<12   >>5 = <<7
-    result = result >> 5;
-	printf("Encode 6: %x \n", result);
+//     //        <<12   >>5 = <<7
+//     result = result >> 5;
+// 	printf("Encode 6: %x \n", result);
 
-    return result;
+//     return result;
 }
 
 /*
  * Fixed point piecewise 2^x.
  * Using linear approximations.
  */
-unsigned int fppw2exp(unsigned int x) {
+unsigned int fppw2exp(register unsigned int x) {
+    if (x < 0x0000) { return 0xFFFFFFFF; } // ERROR
     // x < 0d0.25
     if (x < 0x0400) {
         return(((0x0C19 * x) >> 12) + 0x1000);
@@ -136,15 +143,43 @@ unsigned int fppw2exp(unsigned int x) {
  *
  * This function assumes that value of x is scaled by <<12.
  */
-unsigned int fpexp8(unsigned int x) {
-    unsigned int result = x;
-	int i = 0; 
-    for (i=0; i<7; i++) {
-        result = result * x;
-        result = result >> 12;
-        printf("x^%d :: %x\n", i + 2, result);
-    }
-    return result;
+unsigned int fpexp8(register unsigned int x) {
+    // unsigned int result = x;
+	
+	//optimize for multiples in loop
+// 	int i = 0; 
+//     for (i=0; i<7; i++) {
+//         result = result * x;
+//         result = result >> 12;
+//         printf("x^%d :: %x\n", i + 2, result);
+//     }
+    
+    // optimize to 1 line
+    //0
+    // unsigned int result = x * x;
+    // result = result >> 12;
+    // //1
+    // result = result * x;
+    // result = result >> 12;
+    // //2
+    // result = result * x;
+    // result = result >> 12;
+    // //3
+    // result = result * x;
+    // result = result >> 12;
+    // //4
+    // result = result * x;
+    // result = result >> 12;
+    // //5
+    // result = result * x;
+    // result = result >> 12;
+    // //6
+    // result = result * x;
+    // result = result >> 12;
+    // return result;
+    
+    
+    return ((((((((((((((x * x) >> 12) * x) >> 12) * x) >> 12) * x) >> 12) * x) >> 12) * x) >> 12) * x) >> 12);
 }
 
 /*
@@ -160,30 +195,37 @@ unsigned int fpexp8(unsigned int x) {
  * Output is a 16 bit value with a scaling of d<<12
  */
 unsigned int decode(unsigned int x){
-    unsigned int result = x;
-    printf("Decode 1: %x \n", result);
+    register unsigned int result = x; //make into a register plez
+    return (((fpexp8(fppw2exp(result <<5)) - 0x01000) * 0x10) >> 12);
     
-    //        <<7    << 5 = <<12
-    result = result << 5;
-    printf("Decode 2: %x \n", result);
     
-    //        <<12
-    result = fppw2exp(result);
-    printf("Decode 3: %x \n", result);
     
-    //        <<12
-    result = fpexp8(result);
-    printf("Decode 4: %x\n", result);
     
-    //        <<12  -  1<<12   = <<12
-    result = result - 0x01000;
-    printf("Decode 5: %x \n", result);
     
-    //        (<<12 * (1/255)<<12) >> 12  = <<12
-    result = (result * 0x10) >> 12;
-    printf("Decode 6: %x \n", result);
+    // unsigned int result = x;
+    // printf("Decode 1: %x \n", result);
     
-    return result;
+    //         // <<7    << 5 = <<12
+    // unsigned int result = x << 5;
+    // printf("Decode 2: %x \n", result);
+    
+    //         // <<12
+    // result = fppw2exp(result);
+    // printf("Decode 3: %x \n", result);
+    
+    //         // <<12
+    // result = fpexp8(result);
+    // printf("Decode 4: %x\n", result);
+    
+    //         // <<12  -  1<<12   = <<12
+    // result = result - 0x01000;
+    // printf("Decode 5: %x \n", result);
+    
+    //         // (<<12 * (1/255)<<12) >> 12  = <<12
+    // result = (result * 0x10) >> 12;
+    // printf("Decode 6: %x \n", result);
+    
+    // return result;
 }
 
 int test(unsigned int sample) {
@@ -204,8 +246,6 @@ int test(unsigned int sample) {
 
 int main(void) {
     unsigned int sample;
-    unsigned int encoded_sample;
-    unsigned int decoded_sample;
     
     /*
         Sanity Checks:
