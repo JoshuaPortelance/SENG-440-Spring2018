@@ -5,8 +5,7 @@ all: mulaw mulaw_extended mulaw_arm
 
 mulaw: mulaw.c
 	gcc -g -o mulaw.exe mulaw.c
-	
-	
+
 mulaw_extended: mulaw_extended.c
 	gcc -o mulaw_extended.exe mulaw_extended.c
 
