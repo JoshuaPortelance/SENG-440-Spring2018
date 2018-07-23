@@ -1,13 +1,16 @@
 CC=arm-linux-gcc
-CFLAGS=-static
+CFLAGS=-static -S -g
 
-all: mulaw mulaw_arm
+all: mulaw mulaw_clean mulaw_arm
 
 mulaw: mulaw.c
-	gcc -g -o mulaw.exe mulaw.c
+	gcc $(CFLAGS) -o mulaw.exe mulaw.c
+	
+mulaw_clean: mulaw_clean.c
+	gcc $(CFLAGS) -o mulaw_clean.exe mulaw_clean.c
 
-mulaw_arm: mulaw.c
-	arm-linux-gcc -static -g -o mulaw_arm.exe mulaw.c
+mulaw_arm: mulaw_clean.c
+	arm-linux-gcc $(CFLAGS) -o mulaw_arm.exe mulaw_clean.c
 
 clean:
 	rm *.exe *.o
