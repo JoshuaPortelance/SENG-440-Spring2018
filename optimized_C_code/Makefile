@@ -1,5 +1,5 @@
 CC=arm-linux-gcc
-CFLAGS=-static -S -g
+CFLAGS=-static -g
 
 all: mulaw mulaw_clean mulaw_arm
 
