@@ -92,9 +92,6 @@ unsigned int encode(unsigned int x) {
 /*
  * Fixed point piecewise 2^x.
  * Using linear approximations.
- *
- * Intervals are more narrow afte x > 1 since the
- * slope start to change rapidly.
  */
 unsigned int fppw2exp(unsigned int x) {
     // x < 0d0.25
@@ -113,45 +110,21 @@ unsigned int fppw2exp(unsigned int x) {
     if (x < 0x1000) {
         return(((0x145A * x) >> 12) + 0x0BA6);
     }
-    // x < 0d1.1
-    if (x < 0x119A) {
-        return(((0x16F6 * x) >> 12) + 0x090A);
+    // x < 0d1.25
+    if (x < 0x1400) {
+        return(((0x1831 * x) >> 12) + 0x0687);
     }
-    // x < 0d1.2
-    if (x < 0x1333) {
-        return(((0x18A0 * x) >> 12) + 0x0736);
-    }
-    // x < 0d1.3
-    if (x < 0x14CD) {
-        return(((0x1A62 * x) >> 12) + 0x0519);
-    }
-    // x < 0d1.4
-    if (x < 0x1666) {
-        return(((0x1C46 * x) >> 12) + 0x02A5);
-    }
-    // x < 0d1.5
+    // x < 0d1.50
     if (x < 0x1800) {
-        return(((0x1E4E * x) >> 12) - 0x0034);
+        return(((0x1CCD * x) >> 12) + 0x020C);
     }
-    // x < 0d1.6
-    if (x < 0x199A) {
-        return(((0x207B * x) >> 12) - 0x0377);
+    // x < 0d1.75
+    if (x < 0x1C00) {
+        return(((0x224E * x) >> 12) - 0x0635);
     }
-    // x < 0d1.7
-    if (x < 0x1B33) {
-        return(((0x22D1 * x) >> 12) - 0x0734);
-    }
-    // x < 0d1.8
-    if (x < 0x1CCD) {
-        return(((0x1DD3 * x) >> 12) - 0x0B64);
-    }
-    // x < 0d1.9
-    if (x < 0x1E66) {
-        return(((0x2800 * x) >> 12) - 0x104A);
-    }
-    // x < 0d2.0
+    // x < 0d2.00
     if (x < 0x2000) {
-        return(((0x2AE1 * x) >> 12) - 0x15C3);
+        return(((0x28B4 * x) >> 12) - 0x1168);
     }
     printf("ERROR\n");
     exit(0);
