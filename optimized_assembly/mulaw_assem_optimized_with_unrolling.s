@@ -80,13 +80,13 @@ encode:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	asl r0, r3, #8
+	mov r0, r3, asl #8
 	rsb	r3, r0, r3
 	lsr r3, r3, #3
 	stmfd	sp!, {r4, lr}
 	add	r0, r3, #4096       
 	bl	fppwlog2
-	asl r0, r0, #9
+	mov r0, r0, asl #9
 	lsr r0, r0, #17
 	ldmfd	sp!, {r4, lr}
 	bx	lr
@@ -208,7 +208,7 @@ decode:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	stmfd	sp!, {r4, lr}
-	asl r0, r0, #5
+	mov r0, r0, asl #5
 	bl	fppw2exp
 	
 	@ r0^8
@@ -227,7 +227,7 @@ decode:
 	mul	r0, r2, r0
 	lsr r0, r0, #12
 	
-	asl r0, r0, #4
+	mov r0, r0, asl #4
 	sub	r0, r0, #65536
 	lsr r0, r0, #12
 	ldmfd	sp!, {r4, lr}
