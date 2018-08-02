@@ -11,9 +11,8 @@ unsigned int fppwlog2(register unsigned int x) {
     return 0xFFFFFFFF;
 }
 
-unsigned int encode(unsigned int x) {
-    register unsigned int result = x;
-    return ((fppwlog2(((result * 0xFF) >> 3) + 0x1000) * 0x200) >> 17);
+unsigned int encode(register unsigned int x) {
+    return ((fppwlog2(((x * 0xFF) >> 3) + 0x1000) * 0x200) >> 17);
 }
 
 
@@ -34,17 +33,10 @@ unsigned int fpexp8(register unsigned int x) {
     return ((((((((((((((x * x) >> 12) * x) >> 12) * x) >> 12) * x) >> 12) * x) >> 12) * x) >> 12) * x) >> 12);
 }
 
-unsigned int decode(unsigned int x){
-    register unsigned int result = x; //make into a register plez
-    return (((fpexp8(fppw2exp(result <<5)) - 0x01000) * 0x10) >> 12);
+unsigned int decode(register unsigned int x){
+    return (((fpexp8(fppw2exp(x <<5)) - 0x01000) * 0x10) >> 12);
 }
 
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -61,8 +53,7 @@ int test(unsigned int sample) {
     printf("------------\n");
     printf("Encoded Sample: %x \n", encoded_sample);
     printf("Decoded Sample: %x \n", decoded_sample);
-    printf("Match??   %x == %x\n", sample, decoded_sample);
-    printf("decimal:  %f == %f\n", sample/32768.0, decoded_sample/4096.0);
+    printf("Decimal match?:  %f == %f\n", sample/32768.0, decoded_sample/4096.0);
     printf("==~~~~~~~~~~~~~~~~~~~==\n\n");
 }
 

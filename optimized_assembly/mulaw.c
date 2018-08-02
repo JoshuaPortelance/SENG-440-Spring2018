@@ -16,7 +16,6 @@ unsigned int encode(unsigned int x) {
     return ((fppwlog2(((result * 0xFF) >> 3) + 0x1000) * 0x200) >> 17);
 }
 
-
 unsigned int fppw2exp(register unsigned int x) {
     if (x < 0x0000) { return 0xFFFFFFFF; } // ERROR
     if (x < 0x0400) { return(((0x0C19 * x) >> 12) + 0x1000); } // x < 0d0.25
@@ -38,7 +37,6 @@ unsigned int decode(unsigned int x){
     register unsigned int result = x; //make into a register plez
     return (((fpexp8(fppw2exp(result <<5)) - 0x01000) * 0x10) >> 12);
 }
-
 
 //==============================================================================
 //==============================================================================
